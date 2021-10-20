@@ -15,7 +15,7 @@ import static java.util.stream.Collectors.toList;
 
 @Service
 @AllArgsConstructor
-public class subredditService {
+public class SubredditService {
     private final SubredditRepository subredditRepository;
     private final PostRepository postRepository;
 
