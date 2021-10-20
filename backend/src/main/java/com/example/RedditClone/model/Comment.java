@@ -1,7 +1,6 @@
 package com.example.RedditClone.model;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -10,13 +9,11 @@ import javax.validation.constraints.NotEmpty;
 
 import java.time.Instant;
 
-import static javax.persistence.FetchType.LAZY;
 import static javax.persistence.GenerationType.IDENTITY;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @Entity
 public class Comment {
 
@@ -27,12 +24,8 @@ public class Comment {
     @NotEmpty
     private String text;
 
-    @ManyToOne(fetch=LAZY)
-    @JoinColumn(name = "postId", referencedColumnName = "postId")
+    @ManyToOne
     private Post post;
     private Instant createdDate;
 
-    @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "userId", referencedColumnName = "userId")
-    private User user;
 }

@@ -20,19 +20,19 @@ public class MailService {
 
     //O envio de emails pode demorar e isso trava a api, então devemos enviar os emails de forma assincrona
     @Async
-    void sendMail(NotificationEmail notificationEmail){
+    void sendMail(String recipient, String message){
         MimeMessagePreparator messagePreparator = mimeMessage -> {
             MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage);
             messageHelper.setFrom("springreddit@email.com");
-            messageHelper.setTo(notificationEmail.getRecipient());
-            messageHelper.setSubject(notificationEmail.getSubject());
-            messageHelper.setText(mailContentBuilder.build(notificationEmail.getBody()));
+            messageHelper.setTo(recipient);
+            messageHelper.setSubject("Ativação de conta");
+            messageHelper.setText(mailContentBuilder.build(message));
         };
         try{
             mailSender.send(messagePreparator);
             log.info("Email de ativação enviado!");
         }catch (MailException e){
-            throw new SpringRedditException("Um erro aconteceu ao tentar enviar o email para " + notificationEmail.getRecipient(), e);
+            throw new SpringRedditException("Um erro aconteceu ao tentar enviar o email para " + recipient);
         }
 
     }

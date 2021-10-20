@@ -11,6 +11,7 @@ import com.example.RedditClone.repository.UserRepository;
 import com.example.RedditClone.repository.VerificationTokenRepository;
 import com.example.RedditClone.security.JwtProvider;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -23,8 +24,12 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
+
+import static java.time.Instant.now;
+
 @Service
 @AllArgsConstructor
+@Slf4j
 public class AuthService {
 
 
@@ -34,27 +39,33 @@ public class AuthService {
 
     private final VerificationTokenRepository verificationTokenRepository;
 
+    private final MailContentBuilder mailContentBuilder;
+
     private final MailService mailService;
 
     private final AuthenticationManager authenticationManager;
 
     private final JwtProvider jwtProvider;
 
-    @Transactional
     public  void signup(RegisterRequest registerRequest){
         User user = new User();
         user.setUsername(registerRequest.getUsername());
         user.setEmail(registerRequest.getEmail());
-        user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
+        user.setPassword(encodePassword(registerRequest.getPassword()));
         user.setCreated(Instant.now() );
         user.setEnabled(false);
 
         userRepository.save(user);
 
+        log.info("Usuário registrado com sucesso, enviando email de autenticação.");
+
         String token = generateVerificationToken(user);
-        mailService.sendMail(new NotificationEmail("Por favor, ative a sua conta",user.getEmail(),
-                "Obrigado por criar a sua conta! Por favor, clique no link abaixo para ativar a sua conta:" +
-                "http://localhost:8080/api/auth/accountVerification/" + token));
+
+        String message = mailContentBuilder.build(new NotificationEmail("Obrigado por registrar no reddit clone, clique no link abaixo para ativar sua conta: "
+                + ACTIVATION_EMAIL + "/" + token);
+
+        mailService.sendMail(user.getEmail(), message);
+        log.info("Email de ativação enviado!");
 
     }
 
@@ -66,6 +77,10 @@ public class AuthService {
 
         verificationTokenRepository.save(verificationToken);
         return token;
+    }
+
+    private String encodePassword(String password) {
+        return passwordEncoder.encode(password);
     }
 
     public void verifyAccount(String token) {
@@ -88,5 +103,11 @@ public class AuthService {
         SecurityContextHolder.getContext().setAuthentication(authenticate);
         String token = jwtProvider.generateToken(authenticate);
         return new AuthenticationResponse(token, loginRequest.getUsername());
+    }
+
+    public Optional<org.springframework.security.core.userdetails.User> getCurrentUser() {
+        org.springframework.security.core.userdetails.User principal = (org.springframework.security.core.userdetails.User) SecurityContextHolder.
+                getContext().getAuthentication().getPrincipal();
+        return Optional.of(principal);
     }
 }

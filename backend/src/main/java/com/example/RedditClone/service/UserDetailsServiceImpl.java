@@ -41,4 +41,11 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         return singletonList(new SimpleGrantedAuthority(role));
     }
 
+    UserDetails loadUserByName(String username) throws IllegalAccessException{
+        User user = userRepository.findByUsername(username).orElseThrow(IllegalAccessException::new);
+
+        return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), user.isEnabled(),
+                true,true,true,getAuthorities("USER"));
+    }
+
 }
