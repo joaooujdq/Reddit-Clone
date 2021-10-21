@@ -1,14 +1,19 @@
 package com.example.RedditClone.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
+
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.time.Instant;
 
 @Data
 @AllArgsConstructor
-@Builder
+@NoArgsConstructor
 public class CommentsDTO {
     private Long id;
+    private Long postId;
+    private Instant createdDate;
     private String text;
-    private  String duration;
+    private  String userName;
 }

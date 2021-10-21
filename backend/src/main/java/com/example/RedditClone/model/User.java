@@ -39,10 +39,5 @@ public class User {
     private Instant created;
     private boolean enabled;
 
-    @OneToMany
-    private List<Comment> comments;
-
-    @OneToMany
-    private List<Post> posts;
 
 }
